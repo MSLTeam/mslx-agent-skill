@@ -29,6 +29,9 @@
 # 查看帮助与参数说明
 npx @mslteam/mslx-agent-skill --help
 
+# 查看 CLI 版本
+npx @mslteam/mslx-agent-skill --version
+
 # 安装到工作区的技能目录
 npx -y @mslteam/mslx-agent-skill install .agents/skills
 
