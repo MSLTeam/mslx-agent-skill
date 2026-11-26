@@ -50,6 +50,6 @@ jobs:
       - name: Pack both packages
         run: npm run publish-both -- --pack npm-packages
       - name: Publish organization package
-        run: npm publish "npm-packages/mslteam-mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/
+        run: npm publish "./npm-packages/mslteam-mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/
       - name: Publish personal package
-        run: npm publish "npm-packages/mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/
+        run: npm publish "./npm-packages/mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/
