@@ -1,0 +1,55 @@
+name: Publish MSLX Agent Skill to npm
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: npm-publish
+  queue: max
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      # npm provenance requires a public source repository.
+      NPM_CONFIG_PROVENANCE: 'false'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global npm@11
+      - run: npm test
+      - name: Calculate shared release version
+        run: |
+          node <<'JS'
+          const { execFileSync } = require('node:child_process');
+          const { appendFileSync } = require('node:fs');
+          const pkg = require('./package.json');
+          const npm = (...args) => execFileSync('npm', args, { encoding: 'utf8' });
+          const names = [pkg.name, 'mslx-agent-skill'];
+          const parse = version => version.split('.').map(Number);
+          const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+          const versions = names.flatMap(name =>
+            JSON.parse(npm('view', name, 'versions', '--json', '--registry=https://registry.npmjs.org/'))
+          );
+          const stable = versions.filter(version => /^\d+\.\d+\.\d+$/.test(version));
+          const [major, minor, patch] = [pkg.version, ...stable].map(parse).sort(compare).at(-1);
+          const version = `${major}.${minor}.${patch + 1}`;
+          npm('version', version, '--no-git-tag-version');
+          appendFileSync(process.env.GITHUB_ENV, `RELEASE_VERSION=${version}\n`);
+          console.log(`Releasing both packages at ${version}`);
+          JS
+      - name: Pack both packages
+        run: npm run publish-both -- --pack npm-packages
+      - name: Publish organization package
+        run: npm publish "npm-packages/mslteam-mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/
+      - name: Publish personal package
+        run: npm publish "npm-packages/mslx-agent-skill-${RELEASE_VERSION}.tgz" --access public --registry https://registry.npmjs.org/

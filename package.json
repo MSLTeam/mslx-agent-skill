@@ -1,0 +1,51 @@
+{
+  "name": "@mslteam/mslx-agent-skill",
+  "version": "1.0.0",
+  "description": "MSLX 官方 Minecraft 服务器运维与全平台 MCP 协议桥接 Agent Skill（支持 Google Antigravity、Cursor、Workbuddy、Qoder、Claude Desktop、Windsurf、豆包等）",
+  "main": "bin/cli.js",
+  "bin": {
+    "mslx-agent-skill": "bin/cli.js",
+    "mslx-mcp": "bin/cli.js"
+  },
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "bin/cli.js",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mslx",
+    "mslx-mcp",
+    "minecraft",
+    "minecraft-server",
+    "mcp",
+    "model-context-protocol",
+    "antigravity",
+    "agent-skill",
+    "skills",
+    "cursor",
+    "claude-desktop",
+    "workbuddy",
+    "qoder",
+    "doubao",
+    "windsurf"
+  ],
+  "author": "MSLTeam <ljy.xiaoyu@qq.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MSLTeam/mslx-agent-skill.git"
+  },
+  "scripts": {
+    "test": "node bin/cli.js --help",
+    "publish-both": "node bin/publish-both.js",
+    "publish:both": "node bin/publish-both.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}
