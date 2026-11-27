@@ -13,7 +13,7 @@
 
 - 🚀 **零重依赖原生架构**：完全基于 Node.js 原生模块 (`http`, `https`, `events`, `readline`, `url`) 构建，无需安装任何体积庞大的第三方 npm 依赖，秒级拉起、轻量高效。
 - 🔌 **全双工 Stdio-to-SSE 桥接**：完美打通基于标准输入输出 (Stdio) 的本地 Agent 与 MSLX 宿主后端 Server-Sent Events (SSE) / JSON-RPC 2.0 远程 MCP 服务的协议转换。
-- 🛡️ **数据安全防御机制**：深度集成高危操作二次确认卡片防护、防御性备份机制 (Backup-First) 与 Dedicated Server 客户端独占模组深度体检。
+- 🛡️ **数据安全防御机制**：深度集成高危操作二次确认卡片防护、实例终端限时授权审批、可开关的「完全权限模式」（强提醒慎重操作与用户确认）、防御性备份机制 (Backup-First) 与 Dedicated Server 客户端独占模组深度体检。
 - 🌐 **双通道镜像发布**：内置自动化双通道发布引擎，同时支持组织级包名 `@mslteam/mslx-agent-skill` 与全局精简包名 `mslx-agent-skill`。
 - 📦 **全平台一键开箱即用**：提供针对 Antigravity、Cursor、Workbuddy、Qoder、Claude Desktop、Windsurf 以及纯文本大模型的即拷即用配置。
 
@@ -199,25 +199,36 @@ npx @mslteam/mslx-agent-skill skill
 | 业务领域 | 工具名称 | 功能描述 |
 | :--- | :--- | :--- |
 | **实例管理** | `control_server` | 启动、停止或重启 Minecraft 服务器 |
-| | `update_instance_settings` | 修改实例内存配额、绑定 Java 版本、核心文件名 |
+| | `update_instance_settings` | 修改实例内存、绑定 Java、核心文件（含上传替换 `core_file_key`）、JVM 参数 |
 | | `update_server_config` | 修改 `server.properties` 键值（端口、正版验证等） |
 | | `query_server_status` | 查询实例在线状态、PID、CPU 与内存利用率 |
 | | `query_system_metrics` | 监控宿主机与实例的系统级硬件性能指标 |
-| **开服生态** | `create_mc_server` | 支持在线核心、整合包、MCDR、自定义 4 种开服模式 |
+| **开服生态** | `create_mc_server` | 支持在线核心、上传核心/整合包 (`core_file_key`/`package_file_key`)、MCDR、自定义模式 |
 | | `query_available_server_cores` | 动态检索官方全量服务端核心（含正式版与快照版） |
 | | `query_creation_status` | 轮询异步开服进度百分比与部署日志 |
 | | `agree_server_eula` | 一键同意 Mojang EULA 协议解决首次开服阻塞 |
+| **后台任务** | `list_background_tasks` | 查询当前用户的异步后台任务列表，用于根据类型与标题匹配进度 |
+| | `query_background_task` | 按 `task_id` 查询单个后台任务进度与状态 |
+| | `cancel_background_task` | 取消当前用户排队或运行中的后台任务 |
 | **操作审批** | `query_operation_status` | 按 `operation_id` 查询当前令牌提交的操作 |
 | **Java 管理** | `query_java_environments` | 全盘扫描系统已安装 JDK（支持强制重扫） |
 | | `install_online_java` | 一键后台下载安装官方 Java 8/11/16/17/21/25 |
-| **安全文件** | `list_server_files` | 列出服务器目录或子目录文件清单 |
+| **安全文件与上传** | `list_server_files` | 列出服务器目录或子目录文件清单 |
 | | `read_server_file` | 无锁读取日志与配置文件 (`FileShare.ReadWrite`) |
 | | `write_server_file` | 创建或覆盖写入文件（前端交互式授权卡片保护） |
 | | `delete_server_file` | 删除文件或目录（前端交互式授权卡片保护） |
 | | `copy_server_file` | 复制并备份特定文件或关键数据目录 |
 | | `move_server_file` | 移动或重命名文件（排障时快速禁用崩服 Mod） |
-| **诊断交互** | `read_server_log` | 深度审查最新日志与崩溃分析报告 |
+| | `stage_upload_file` | 暂存文本/Base64/本地文件并生成 `uploadId` |
+| | `inspect_uploaded_archive` | 检查已上传 `.zip` / `.mrpack` 压缩包内的候选核心 |
+| | `upload_server_file` | 上传文件、`server-icon.png` 或文本至实例目录（支持 `/mcp/uploads` 暂存） |
+| | `upload_panel_image` | 上传面板背景图片并可选绑定亮/暗色主题 |
+| | `upload_mslx_plugin` | 上传并热加载本地 `.dll` 面板插件 |
+| | `update_panel_ssl` | 配置自签证书或上传自定义 SSL 证书/私钥 PEM 文本 |
+| **诊断与终端** | `read_server_log` | 深度审查最新日志与崩溃分析报告 |
 | | `send_server_command` | 向运行中的服务器控制台分发指令 |
+| | `request_terminal_permission` | 默认终端权限关闭时，申请指定实例限时命令行使用权限（小时/分钟） |
+| | `run_server_terminal` | 在目标实例目录内拉起命令行执行操作（Win PowerShell / macOS zsh / Linux bash） |
 | **容灾备份** | `create_server_backup` | 自动刷新磁盘缓存并生成全量世界备份压缩包 |
 | | `list_server_backups` | 获取备份列表、时间戳与格式化文件大小 |
 | | `restore_server_backup` | 一键回档还原（安全停机与授权卡片双重保护） |
@@ -273,7 +284,8 @@ npm view @mslteam/mslx-agent-skill version --registry=https://registry.npmjs.org
 本项目基于 [MIT License](LICENSE) 开源协议发布。
 Copyright (c) 2026 MSLTeam. All rights reserved.
 
-### 更新连接与操作确认
+### 更新连接、上传端点与操作确认
 
-旧地址中的插件 ID 已统一为 `mslx-plugin-ai-agents`，更新客户端 URL 后可继续使用原令牌。
-涉及删除或覆盖时，请在对应节点的 MSLX AI 助手 → MCP → 待确认操作中审批，无需模型 API Key。
+- 旧地址中的插件 ID 已统一为 `mslx-plugin-ai-agents`，更新客户端 URL 后可继续使用原令牌。
+- 大文件上传可使用 HTTP 端点 `POST /api/plugin/mslx-plugin-ai-agents/mcp/uploads`（Bearer Token 鉴权，支持 `multipart/form-data` 或原始二进制流）、`GET .../mcp/uploads/{uploadId}/inspect` 与 `DELETE .../mcp/uploads/{uploadId}`。
+- 默认情况下，删除、覆盖、还原与未开启默认终端时的命令行申请需在对应节点的 MSLX AI 助手 → MCP → 待确认操作中审批，无需模型 API Key；若管理员在面板中开启了「默认开启终端权限」或「完全权限模式」，相关调用将直接执行，Agent 须先向用户确认风险再执行。
